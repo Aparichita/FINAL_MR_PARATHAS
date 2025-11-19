@@ -1,0 +1,114 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+.hero {
+  background: rgba(10, 8, 6, 0.65);
+  border-radius: 24px;
+  border: 1px solid var(--color-border);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+.actions {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.filter {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  color: rgba(245, 240, 234, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding: 0.45rem 1.3rem;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.filter:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.filter.active {
+  background: var(--color-accent);
+  color: #1a0e07;
+  border-color: var(--color-accent);
+}
+
+.error {
+  color: var(--color-error);
+}
+
+.categorySection {
+  padding: 1.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.categoryHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.categoryName {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--color-muted);
+  font-size: 0.85rem;
+}
+
+.categoryDivider {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.menuGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.menuCard {
+  background: rgba(19, 16, 13, 0.95);
+  border-radius: 20px;
+  padding: 1.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  justify-content: space-between;
+}
+
+.menuCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.price {
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.available {
+  color: var(--color-success);
+}
+
+.unavailable {
+  color: var(--color-error);
+}
+

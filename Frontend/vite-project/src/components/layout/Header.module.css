@@ -1,0 +1,141 @@
+@media (min-width: 768px) {
+  .menuToggle {
+    display: none;
+  }
+}
+
+.header {
+  width: 100%;
+  background: rgba(15, 13, 11, 0.85);
+  backdrop-filter: blur(16px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 1rem clamp(1rem, 4vw, 2rem);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.logo {
+  font-size: 1.4rem;
+  font-family: var(--font-heading);
+  color: var(--color-text);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.menuToggle {
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.6rem;
+}
+
+.nav {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 13, 11, 0.95);
+  transform: translateY(-100%);
+  transition: transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.nav.open {
+  transform: translateY(0);
+}
+
+.link {
+  font-size: 1.1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 234, 0.7);
+  transition: color 0.2s ease;
+}
+
+.link:hover {
+  color: var(--color-text);
+}
+
+.active {
+  color: var(--color-accent);
+}
+
+.cta {
+  text-transform: uppercase;
+}
+
+.accountArea {
+  display: flex;
+  align-items: center;
+}
+
+.accountButton {
+  border: 1px solid var(--color-border);
+}
+
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.userChip {
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 234, 0.8);
+}
+
+.logoutBtn {
+  border: 1px solid var(--color-border);
+  background: transparent;
+  color: rgba(245, 240, 234, 0.9);
+  padding: 0.45rem 1.1rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+
+.logoutBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.logoutBtn:hover:not(:disabled) {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+@media (min-width: 768px) {
+  .nav {
+    position: static;
+    transform: none;
+    flex-direction: row;
+    justify-content: flex-end;
+    background: transparent;
+  }
+
+  .link {
+    font-size: 0.95rem;
+  }
+}
+
