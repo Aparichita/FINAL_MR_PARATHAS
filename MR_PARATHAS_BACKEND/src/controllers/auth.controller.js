@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { ApiError } from "../utils/api-error.js";
 import { ApiResponse } from "../utils/api-response.js";
+import { sendMail } from "../utils/send-mail.js";
 
 /* -------------------------------------------------------------------------- */
 /* 🔐 JWT Config                                                              */
@@ -103,6 +104,19 @@ export const registerUser = asyncHandler(async (req, res) => {
   const createdUser = await User.findById(user._id).select(
     "-password -refreshTokens -emailVerificationToken -emailVerificationExpiry"
   );
+
+  // Send welcome email
+  try {
+    await sendMail(
+      email,
+      "Welcome to Mr. Parathas",
+      "Thank you for registering with Mr. Parathas!",
+      `<h1>Welcome, ${username}!</h1><p>Thank you for joining Mr. Parathas.</p>`
+    );
+    console.log("Welcome email sent to:", email);
+  } catch (error) {
+    console.error("Failed to send welcome email:", error.message);
+  }
 
   return res
     .status(201)
