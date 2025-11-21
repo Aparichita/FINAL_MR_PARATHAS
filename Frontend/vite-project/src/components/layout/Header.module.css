@@ -6,12 +6,13 @@
 
 .header {
   width: 100%;
-  background: rgba(15, 13, 11, 0.85);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
   z-index: 100;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid rgba(42, 27, 17, 0.08);
+  box-shadow: 0 10px 30px rgba(42, 27, 17, 0.08);
 }
 
 .inner {
@@ -43,7 +44,7 @@
 .nav {
   position: fixed;
   inset: 0;
-  background: rgba(15, 13, 11, 0.95);
+  background: rgba(255, 255, 255, 0.98);
   transform: translateY(-100%);
   transition: transform 0.25s ease;
   display: flex;
@@ -61,12 +62,12 @@
   font-size: 1.1rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(245, 240, 234, 0.7);
+  color: rgba(42, 27, 17, 0.65);
   transition: color 0.2s ease;
 }
 
 .link:hover {
-  color: var(--color-text);
+  color: var(--color-accent);
 }
 
 .active {
@@ -83,7 +84,7 @@
 }
 
 .accountButton {
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(42, 27, 17, 0.12);
 }
 
 .userActions {
@@ -97,17 +98,26 @@
 .userChip {
   padding: 0.35rem 0.9rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(42, 27, 17, 0.12);
   font-size: 0.85rem;
   letter-spacing: 0.05em;
   text-transform: uppercase;
-  color: rgba(245, 240, 234, 0.8);
+  color: rgba(42, 27, 17, 0.75);
+  display: inline-flex;
+  gap: 0.2rem;
+  align-items: center;
+}
+
+.userPoints {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--color-accent);
 }
 
 .logoutBtn {
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(42, 27, 17, 0.12);
   background: transparent;
-  color: rgba(245, 240, 234, 0.9);
+  color: var(--color-accent);
   padding: 0.45rem 1.1rem;
   border-radius: 999px;
   text-transform: uppercase;
@@ -121,8 +131,8 @@
 }
 
 .logoutBtn:hover:not(:disabled) {
-  color: var(--color-accent);
   border-color: var(--color-accent);
+  background: rgba(255, 138, 76, 0.1);
 }
 
 @media (min-width: 768px) {

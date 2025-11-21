@@ -7,7 +7,7 @@ import { useMenu, MENU_QUERY_KEY } from '../../hooks/useMenu.js'
 import { apiClient } from '../../services/apiClient.js'
 import styles from './Admin.module.css'
 
-const categories = ['appetizers', 'mains', 'desserts', 'drinks']
+const categories = ['appetizers', 'mains', 'desserts', 'drinks', 'parathas']
 
 const MenuManager = () => {
   const queryClient = useQueryClient()
@@ -145,9 +145,10 @@ const MenuManager = () => {
         {deleteSuccess && <p className={styles.success}>Item deleted successfully.</p>}
         {deleteError && <p className={styles.error}>{deleteErrorMsg?.message || 'Failed to delete item'}</p>}
         {!isLoading && menuItems.length > 0 && (
-          <ul className={styles.list}>
-            {menuItems.slice(0, 4).map((item) => (
-              <li key={item._id} className={styles.listItem}>
+          <div className={styles.scrollArea}>
+            <ul className={styles.list}>
+              {menuItems.map((item) => (
+                <li key={item._id} className={styles.listItem}>
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                   <strong>{item.name}</strong>
                   <span className={styles.muted}>
@@ -172,8 +173,9 @@ const MenuManager = () => {
                   <FiTrash2 />
                 </button>
               </li>
-            ))}
-          </ul>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
     </section>

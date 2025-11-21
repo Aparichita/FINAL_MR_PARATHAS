@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react'
 
 import {
   ACCESS_TOKEN_STORAGE_KEY,
@@ -30,19 +30,19 @@ export const AuthProvider = ({ children }) => {
   const [isLoadingUser, setIsLoadingUser] = useState(false)
   const [authError, setAuthError] = useState(null)
 
-  const persistUser = (nextUser) => {
+  const persistUser = useCallback((nextUser) => {
     setUser(nextUser)
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(userStorageKey, JSON.stringify(nextUser))
     }
-  }
+  }, [])
 
-  const clearStoredUser = () => {
+  const clearStoredUser = useCallback(() => {
     setUser(null)
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(userStorageKey)
     }
-  }
+  }, [])
 
   const applySession = (payload) => {
     const nextUser = payload?.user ?? payload
@@ -108,6 +108,20 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
+  const refreshProfile = useCallback(async () => {
+    if (!authToken) return null
+    setIsLoadingUser(true)
+    try {
+      const currentUser = await apiClient.getCurrentUser()
+      persistUser(currentUser)
+      return currentUser
+    } catch {
+      return null
+    } finally {
+      setIsLoadingUser(false)
+    }
+  }, [authToken, persistUser])
+
   useEffect(() => {
     if (!authToken || user) return
     let isMounted = true
@@ -144,12 +158,13 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
+       refreshProfile,
       refreshToken,
       isAuthenticating,
       isLoadingUser,
       authError,
     }),
-    [user, authToken, refreshToken, isAuthenticating, isLoadingUser, authError],
+    [user, authToken, refreshToken, isAuthenticating, isLoadingUser, authError, refreshProfile],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

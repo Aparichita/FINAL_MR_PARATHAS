@@ -35,12 +35,31 @@ const ReservationsList = () => {
     },
   })
 
+  const {
+    mutateAsync: cancelBooking,
+    isPending: isCancelling,
+  } = useMutation({
+    mutationFn: (bookingId) => apiClient.cancelBooking(bookingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'reservations'] })
+    },
+  })
+
   const handleStatusChange = async (bookingId, newStatus) => {
     setUpdatingId(bookingId)
     try {
       await updateStatus({ id: bookingId, status: newStatus })
     } catch {
       setUpdatingId(null)
+    }
+  }
+
+  const handleCancel = async (bookingId) => {
+    if (!window.confirm('Cancel this booking?')) return
+    try {
+      await cancelBooking(bookingId)
+    } catch {
+      // handled by mutation error boundary if needed
     }
   }
 
@@ -90,6 +109,7 @@ const ReservationsList = () => {
                 <th>Notes</th>
                 <th>Booking Status</th>
                 <th>Operational Status</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -128,6 +148,16 @@ const ReservationsList = () => {
                           </option>
                         ))}
                       </select>
+                    </td>
+                    <td>
+                      <button
+                        type="button"
+                        className={styles.deleteBtn}
+                        onClick={() => handleCancel(booking._id)}
+                        disabled={isCancelling || statusKey === 'cancelled'}
+                      >
+                        Cancel
+                      </button>
                     </td>
                   </tr>
                 )

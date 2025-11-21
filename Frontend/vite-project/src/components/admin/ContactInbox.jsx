@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 import Button from '../common/Button.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
@@ -6,12 +6,29 @@ import { apiClient } from '../../services/apiClient.js'
 import styles from './Admin.module.css'
 
 const ContactInbox = () => {
+  const queryClient = useQueryClient()
   const { authToken } = useAuth()
   const { data = [], isLoading, isError, error, refetch, isFetching } = useQuery({
     queryKey: ['admin', 'contact'],
     queryFn: apiClient.fetchContactMessages,
     enabled: Boolean(authToken),
   })
+
+  const { mutateAsync: deleteMessage, isPending: isDeleting } = useMutation({
+    mutationFn: (id) => apiClient.deleteContactMessage(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin', 'contact'] })
+    },
+  })
+
+  const handleDelete = async (messageId) => {
+    if (!window.confirm('Delete this message?')) return
+    try {
+      await deleteMessage(messageId)
+    } catch {
+      /* handled globally */
+    }
+  }
 
   if (!authToken) {
     return null
@@ -51,6 +68,14 @@ const ContactInbox = () => {
                   {message.email} · {createdAt}
                 </p>
                 <p>{message.message}</p>
+                <button
+                  type="button"
+                  className={styles.deleteBtn}
+                  onClick={() => handleDelete(message._id)}
+                  disabled={isDeleting}
+                >
+                  Delete
+                </button>
               </li>
             )
           })}

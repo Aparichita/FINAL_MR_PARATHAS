@@ -9,11 +9,11 @@
   gap: 2rem;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   align-items: center;
-  background: linear-gradient(135deg, rgba(215, 123, 54, 0.15), rgba(19, 16, 13, 0.7));
+  background: linear-gradient(135deg, rgba(255, 197, 164, 0.35), rgba(255, 255, 255, 0.95));
   border-radius: 32px;
   padding: clamp(1.5rem, 5vw, 3rem);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(42, 27, 17, 0.1);
+  box-shadow: 0 30px 80px rgba(42, 27, 17, 0.1);
 }
 
 .heroContent h1 {
@@ -30,7 +30,7 @@
 
 .lede {
   font-size: 1.05rem;
-  color: rgba(245, 240, 234, 0.82);
+  color: rgba(42, 27, 17, 0.75);
   margin-bottom: 1.5rem;
 }
 
@@ -43,7 +43,8 @@
 .heroImage {
   border-radius: 24px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(42, 27, 17, 0.08);
+  box-shadow: 0 25px 60px rgba(42, 27, 17, 0.12);
 }
 
 .heroImage img {
@@ -52,10 +53,11 @@
 }
 
 .featured {
-  background: rgba(10, 8, 6, 0.7);
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 32px;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(42, 27, 17, 0.08);
   padding: clamp(1.5rem, 4vw, 3rem);
+  box-shadow: 0 30px 60px rgba(42, 27, 17, 0.08);
 }
 
 .cardGrid {
@@ -67,9 +69,10 @@
 .card {
   padding: 1.2rem;
   border-radius: 20px;
-  background: rgba(19, 16, 13, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(42, 27, 17, 0.08);
   min-height: 200px;
+  box-shadow: 0 20px 45px rgba(42, 27, 17, 0.08);
 }
 
 .cardHeader {
@@ -105,7 +108,7 @@
 .highlights li {
   padding-left: 1.5rem;
   position: relative;
-  color: rgba(245, 240, 234, 0.8);
+  color: rgba(42, 27, 17, 0.75);
 }
 
 .highlights li::before {
@@ -117,8 +120,9 @@
 
 .aboutImage img {
   border-radius: 24px;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(42, 27, 17, 0.08);
   max-height: 360px;
   object-fit: cover;
+  box-shadow: 0 25px 60px rgba(42, 27, 17, 0.1);
 }
 

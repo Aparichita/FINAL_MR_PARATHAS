@@ -1,4 +1,7 @@
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const gmailUser = process.env.GMAIL_USER;
 const gmailPass = process.env.GMAIL_PASS; // app password recommended

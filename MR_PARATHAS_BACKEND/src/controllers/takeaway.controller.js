@@ -154,21 +154,35 @@ export const checkoutTakeawayCart = asyncHandler(async (req, res) => {
   const menuIds = cart.items.map((i) => i.menuItem);
   const menuDocs = await Menu.find({ _id: { $in: menuIds } });
   const priceMap = {};
-  for (const m of menuDocs) priceMap[String(m._id)] = Number(m.price || 0);
+  const menuMap = new Map();
+  for (const m of menuDocs) {
+    priceMap[String(m._id)] = Number(m.price || 0);
+    menuMap.set(String(m._id), m);
+  }
 
   let totalAmount = 0;
-  for (const it of cart.items) {
+  const detailedItems = cart.items.map((it) => {
     const price = priceMap[String(it.menuItem)];
-    if (price === undefined) throw new ApiError(400, `Menu item not found: ${it.menuItem}`);
-    totalAmount += price * Number(it.quantity);
-  }
+    if (price === undefined)
+      throw new ApiError(400, `Menu item not found: ${it.menuItem}`);
+    const quantity = Number(it.quantity);
+    const subtotal = price * quantity;
+    totalAmount += subtotal;
+    return {
+      id: String(it.menuItem),
+      name: menuMap.get(String(it.menuItem))?.name || "Menu item",
+      quantity,
+      price,
+      subtotal,
+    };
+  });
 
   // estimated pickup time: 30 minutes from now
   const pickupTime = new Date(Date.now() + 30 * 60 * 1000);
 
   const takeawayOrder = await TakeawayOrder.create({
     user: userId,
-    items: cart.items.map((i) => ({ menuItem: i.menuItem, quantity: i.quantity })),
+    items: detailedItems.map((i) => ({ menuItem: i.id, quantity: i.quantity })),
     totalAmount,
     paymentMethod,
     paymentStatus: paymentMethod === "Online" ? "Pending" : "Pending", // both start as pending
@@ -180,18 +194,34 @@ export const checkoutTakeawayCart = asyncHandler(async (req, res) => {
   // clear cart
   await TakeawayCart.findOneAndDelete({ user: userId });
 
-  // send confirmation email
+  const itemsListText = detailedItems
+    .map(
+      (it) =>
+        `- ${it.quantity} × ${it.name} @ ₹${Number(it.price).toFixed(0)} = ₹${Number(it.subtotal).toFixed(0)}`,
+    )
+    .join("\n");
+  const itemsListHtml = detailedItems
+    .map(
+      (it) =>
+        `<li>${it.quantity} × ${it.name} @ ₹${Number(it.price).toFixed(0)} = <strong>₹${Number(it.subtotal).toFixed(0)}</strong></li>`,
+    )
+    .join("");
+
+  // send confirmation email (includes items list)
   try {
     const user = await User.findById(userId);
     const customerEmail = user?.email;
+
     if (customerEmail) {
       await sendEmail({
         to: customerEmail,
         subject: "Takeaway Order Confirmation",
-        text: `Your takeaway order is confirmed.\n\nOrder ID: ${takeawayOrder._id}\nTotal: ₹${totalAmount}\nPayment: ${paymentMethod}\nPickup Time: ${pickupTime.toLocaleString()}\n\nThank you!`,
+        text: `Your takeaway order is confirmed.\n\nOrder ID: ${takeawayOrder._id}\nItems:\n${itemsListText}\n\nTotal: ₹${totalAmount}\nPayment: ${paymentMethod}\nPickup Time: ${pickupTime.toLocaleString()}\n\nThank you!`,
         html: `
           <h2>Takeaway Order Confirmed ✓</h2>
           <p><strong>Order ID:</strong> ${takeawayOrder._id}</p>
+          <p><strong>Items:</strong></p>
+          <ul>${itemsListHtml}</ul>
           <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
           <p><strong>Payment Method:</strong> ${paymentMethod}</p>
           <p><strong>Estimated Pickup Time:</strong> ${pickupTime.toLocaleString()}</p>
@@ -204,18 +234,20 @@ export const checkoutTakeawayCart = asyncHandler(async (req, res) => {
     console.error("Failed to send takeaway confirmation email:", err);
   }
 
-  // notify admin
+  // notify admin (includes items list)
   try {
     const adminEmail = process.env.ADMIN_EMAIL;
     if (adminEmail) {
       await sendEmail({
         to: adminEmail,
         subject: "New Takeaway Order",
-        text: `New takeaway order received.\n\nOrder ID: ${takeawayOrder._id}\nCustomer: ${req.user?.username}\nTotal: ₹${totalAmount}\nPayment: ${paymentMethod}\nPickup Time: ${pickupTime.toLocaleString()}`,
+        text: `New takeaway order received.\n\nOrder ID: ${takeawayOrder._id}\nCustomer: ${req.user?.username}\nItems:\n${itemsListText}\n\nTotal: ₹${totalAmount}\nPayment: ${paymentMethod}\nPickup Time: ${pickupTime.toLocaleString()}`,
         html: `
           <p><strong>New Takeaway Order</strong></p>
           <p><strong>Order ID:</strong> ${takeawayOrder._id}</p>
           <p><strong>Customer:</strong> ${req.user?.username}</p>
+          <p><strong>Items:</strong></p>
+          <ul>${itemsListHtml}</ul>
           <p><strong>Total Amount:</strong> ₹${totalAmount}</p>
           <p><strong>Payment Method:</strong> ${paymentMethod}</p>
           <p><strong>Pickup Time:</strong> ${pickupTime.toLocaleString()}</p>

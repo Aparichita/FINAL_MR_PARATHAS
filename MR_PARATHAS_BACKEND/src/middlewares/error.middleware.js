@@ -6,7 +6,7 @@ import logger from "../utils/logger.js";
  * Catches both operational (ApiError) and unexpected errors.
  */
 export const errorHandler = (err, req, res, next) => {
-  console.error("🔥 Error caught:", err);
+  console.error(" Error caught:", err);
 
   // If the error is an instance of our custom ApiError class
   if (err instanceof ApiError) {

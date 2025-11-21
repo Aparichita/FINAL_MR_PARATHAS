@@ -93,6 +93,10 @@ export const apiClient = {
     const response = await api.get('/contact')
     return unwrapResponse(response) ?? []
   },
+  deleteContactMessage: async (id) => {
+    const response = await api.delete(`/contact/${id}`)
+    return unwrapResponse(response)
+  },
   login: async (credentials) => {
     const response = await api.post('/auth/login', credentials)
     return unwrapResponse(response)
@@ -119,6 +123,68 @@ export const apiClient = {
   },
   updateBookingStatus: async (id, operationalStatus) => {
     const response = await api.put(`/tables/bookings/${id}/status`, { operationalStatus })
+    return unwrapResponse(response)
+  },
+  getUserBookings: async () => {
+    const response = await api.get('/tables/bookings/me')
+    return unwrapResponse(response) ?? []
+  },
+  cancelBooking: async (bookingId) => {
+    const response = await api.delete(`/tables/bookings/${bookingId}/cancel`)
+    return unwrapResponse(response)
+  },
+
+  // Takeaway cart + orders
+  getTakeawayCart: async () => {
+    const response = await api.get('/takeaway/cart')
+    return unwrapResponse(response) ?? { items: [] }
+  },
+  addToTakeawayCart: async ({ menuItem, quantity = 1 }) => {
+    const response = await api.post('/takeaway/cart/add', { menuItem, quantity })
+    return unwrapResponse(response)
+  },
+  updateTakeawayCartItem: async ({ menuItemId, quantity }) => {
+    const response = await api.put(`/takeaway/cart/item/${menuItemId}`, { quantity })
+    return unwrapResponse(response)
+  },
+  removeTakeawayCartItem: async ({ menuItemId }) => {
+    const response = await api.delete(`/takeaway/cart/item/${menuItemId}`)
+    return unwrapResponse(response)
+  },
+  clearTakeawayCart: async () => {
+    const response = await api.delete('/takeaway/cart')
+    return unwrapResponse(response)
+  },
+  checkoutTakeawayCart: async ({ paymentMethod = 'Cash at Shop', notes = '' } = {}) => {
+    const response = await api.post('/takeaway/cart/checkout', { paymentMethod, notes })
+    return unwrapResponse(response)
+  },
+  getMyOrders: async () => {
+    const response = await api.get('/orders/me')
+    return unwrapResponse(response) ?? []
+  },
+  redeemOrderPoints: async ({ orderId, points }) => {
+    const response = await api.post(`/orders/${orderId}/redeem`, { points })
+    return unwrapResponse(response)
+  },
+  getLoyaltySummary: async () => {
+    const response = await api.get('/loyalty/me')
+    return unwrapResponse(response)
+  },
+  getAdminDashboard: async () => {
+    const response = await api.get('/admin/dashboard')
+    return unwrapResponse(response)
+  },
+  getAdminLoyaltyOverview: async () => {
+    const response = await api.get('/loyalty/admin/overview')
+    return unwrapResponse(response)
+  },
+  adjustUserPoints: async ({ identifier, delta, points }) => {
+    const encoded = encodeURIComponent(identifier)
+    const payload = {}
+    if (typeof delta !== 'undefined') payload.delta = delta
+    if (typeof points !== 'undefined') payload.points = points
+    const response = await api.patch(`/loyalty/admin/users/${encoded}/points`, payload)
     return unwrapResponse(response)
   },
 }

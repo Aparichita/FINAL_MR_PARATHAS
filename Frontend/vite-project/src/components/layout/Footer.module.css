@@ -1,7 +1,7 @@
 .footer {
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid rgba(42, 27, 17, 0.08);
   padding: 3rem 1rem 2rem;
-  background: #0a0806;
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .inner {
@@ -23,12 +23,12 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.85rem;
-  color: rgba(245, 240, 234, 0.7);
+  color: rgba(42, 27, 17, 0.65);
   margin-bottom: 0.5rem;
 }
 
 .muted {
-  color: rgba(245, 240, 234, 0.72);
+  color: rgba(42, 27, 17, 0.65);
   margin: 0.3rem 0;
 }
 
@@ -36,7 +36,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  color: rgba(245, 240, 234, 0.9);
+  color: rgba(42, 27, 17, 0.85);
   margin-bottom: 0.4rem;
 }
 
@@ -51,7 +51,7 @@
 }
 
 .socials a {
-  color: rgba(245, 240, 234, 0.7);
+  color: rgba(42, 27, 17, 0.65);
   transition: color 0.2s ease;
 }
 
@@ -62,6 +62,6 @@
 .copy {
   text-align: center;
   font-size: 0.85rem;
-  color: rgba(245, 240, 234, 0.5);
+  color: rgba(42, 27, 17, 0.5);
 }
 

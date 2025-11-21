@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { FiMenu, FiX } from 'react-icons/fi'
 import clsx from 'clsx'
@@ -6,13 +6,6 @@ import clsx from 'clsx'
 import Button from '../common/Button.jsx'
 import { useAuth } from '../../context/AuthContext.jsx'
 import styles from './Header.module.css'
-
-const navItems = [
-  { label: 'Home', path: '/' },
-  { label: 'Menu', path: '/menu' },
-  //{ label: 'Contact', path: '/contact' },
-  { label: 'Admin', path: '/admin' },
-]
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false)
@@ -23,6 +16,26 @@ const Header = () => {
     await logout()
     closeMenu()
   }
+
+  const navItems = useMemo(() => {
+    const base = [
+      { label: 'Home', path: '/' },
+      { label: 'Menu', path: '/menu' },
+      { label: 'Contact', path: '/contact' },
+    ]
+
+    // Cart visible only when user is logged in
+    if (user) {
+      base.push({ label: 'Cart', path: '/cart' })
+    }
+
+    // Admin link visible only for admin role
+    if (user?.role === 'admin') {
+      base.push({ label: 'Admin', path: '/admin' })
+    }
+
+    return base
+  }, [user])
 
   return (
     <header className={styles.header}>
@@ -53,7 +66,10 @@ const Header = () => {
               </Button>
             ) : (
               <div className={styles.userActions}>
-                <span className={styles.userChip}>Hi {user.username || user.email}</span>
+                <span className={styles.userChip}>
+                  Hi {user.username || user.email}
+                  <span className={styles.userPoints}> · {Number(user.points || 0)} pts</span>
+                </span>
                 <button
                   type="button"
                   className={styles.logoutBtn}

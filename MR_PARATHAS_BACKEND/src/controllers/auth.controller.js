@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import crypto from "crypto";
 import { User } from "../models/user.model.js";
 import { asyncHandler } from "../utils/async-handler.js";
 import { ApiError } from "../utils/api-error.js";
@@ -274,4 +275,99 @@ export const changeCurrentPassword = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(new ApiResponse(200, {}, "Password changed successfully"));
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🧾 Forgot Password                                                         */
+/* -------------------------------------------------------------------------- */
+export const forgotPassword = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) throw new ApiError(400, "Email is required");
+
+  const user = await User.findOne({ email });
+  if (!user) {
+    // Avoid leaking which emails exist
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          {},
+          "If an account exists with that email, a reset link has been sent",
+        ),
+      );
+  }
+
+  const { unHashedToken, hashedToken, tokenExpiry } =
+    user.generateTemporaryToken();
+  user.forgotPasswordToken = hashedToken;
+  user.forgotPasswordExpiry = tokenExpiry;
+  await user.save({ validateBeforeSave: false });
+
+  const frontendBase = (process.env.FRONTEND_URL || "http://localhost:5173")
+    .replace(/\/$/, "");
+  const resetLink = `${frontendBase}/reset-password?token=${unHashedToken}&email=${encodeURIComponent(
+    email,
+  )}`;
+
+  try {
+    await sendMail(
+      email,
+      "Reset your Mr. Parathas password",
+      `We received a request to reset your password. Use the secure link below:\n\n${resetLink}\n\nThe link expires in 20 minutes.`,
+      `<p>We received a request to reset your password.</p>
+       <p><a href="${resetLink}" style="display:inline-block;padding:12px 18px;border-radius:999px;background:#d77b36;color:#fff;text-decoration:none;">Reset password</a></p>
+       <p>This link expires in 20 minutes. If you did not make this request, you can safely ignore this email.</p>`,
+    );
+  } catch (error) {
+    console.error("Failed to send password reset email:", error.message);
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "If an account exists with that email, a reset link has been sent",
+      ),
+    );
+});
+
+/* -------------------------------------------------------------------------- */
+/* 🔁 Reset Forgot Password                                                   */
+/* -------------------------------------------------------------------------- */
+export const resetForgotPassword = asyncHandler(async (req, res) => {
+  const { email, token, newPassword } = req.body;
+
+  if (!email || !token || !newPassword)
+    throw new ApiError(400, "Email, token and new password are required");
+
+  const passwordRegex =
+    /^(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+  if (!passwordRegex.test(newPassword))
+    throw new ApiError(
+      400,
+      "Password must be at least 8 characters long and include one number and one symbol",
+    );
+
+  const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    email,
+    forgotPasswordToken: hashedToken,
+    forgotPasswordExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) throw new ApiError(400, "Invalid or expired reset token");
+
+  user.password = newPassword;
+  user.forgotPasswordToken = undefined;
+  user.forgotPasswordExpiry = undefined;
+  await user.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password reset successfully"));
 });

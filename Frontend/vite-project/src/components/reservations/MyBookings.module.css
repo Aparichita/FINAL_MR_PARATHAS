@@ -1,0 +1,84 @@
+.section {
+  margin-top: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+.card {
+  border-radius: 20px;
+  border: 1px solid rgba(42, 27, 17, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0 20px 45px rgba(42, 27, 17, 0.08);
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  color: rgba(42, 27, 17, 0.6);
+  margin-bottom: 0.4rem;
+}
+
+.muted {
+  color: rgba(42, 27, 17, 0.65);
+  margin: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem 0.9rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-size: 0.7rem;
+}
+
+.badgeConfirmed {
+  border: 1px solid rgba(31, 138, 112, 0.3);
+  color: #1f8a70;
+}
+
+.badgeCancelled {
+  border: 1px solid rgba(214, 69, 69, 0.3);
+  color: #d64545;
+}
+
+.cancelButton {
+  border-radius: 999px;
+  border: 1px solid rgba(214, 69, 69, 0.3);
+  padding: 0.6rem 1rem;
+  background: transparent;
+  color: #d64545;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cancelButton:hover:not(:disabled) {
+  background: rgba(214, 69, 69, 0.1);
+}
+
+.cancelButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  color: #d64545;
+}
+

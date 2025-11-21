@@ -6,6 +6,11 @@ import { asyncHandler } from "../utils/async-handler.js";
 import logger from "../utils/logger.js";
 import { logAudit } from "../utils/audit.js";
 import { User } from "../models/user.model.js";
+import { sendEmail } from "../utils/email.js";
+
+const POINTS_PER_AMOUNT =
+  Number(process.env.POINTS_PER_AMOUNT) || 1; // 1 point per ₹1 by default
+const POINT_VALUE = Number(process.env.POINT_VALUE) || 1; // ₹1 discount per point
 
 /* ---------------------------------------------------
    🧾 Place a New Order (Customer)
@@ -18,43 +23,116 @@ export const createOrder = asyncHandler(async (req, res) => {
     throw new ApiError(400, "items (array) are required");
   }
 
+  const userDoc = await User.findById(userId).select("email username points");
+  if (!userDoc) throw new ApiError(404, "User not found");
+
   const menuIds = [...new Set(items.map((it) => String(it.menuItem)))];
   const menuDocs = await Menu.find({ _id: { $in: menuIds } });
   const foundIds = new Set(menuDocs.map((m) => String(m._id)));
   const missing = menuIds.filter((id) => !foundIds.has(id));
-  if (missing.length) throw new ApiError(404, `Menu item(s) not found: ${missing.join(", ")}`);
+  if (missing.length)
+    throw new ApiError(404, `Menu item(s) not found: ${missing.join(", ")}`);
 
   const priceMap = {};
-  for (const m of menuDocs) priceMap[String(m._id)] = Number(m.price || 0);
+  const menuMap = new Map();
+  for (const m of menuDocs) {
+    priceMap[String(m._id)] = Number(m.price || 0);
+    menuMap.set(String(m._id), m);
+  }
 
   let totalAmount = 0;
-  for (const it of items) {
+  const lineItems = items.map((it) => {
     const qty = Number(it.quantity || 0);
-    if (!Number.isInteger(qty) || qty < 1) throw new ApiError(400, `Invalid quantity for menuItem ${it.menuItem}`);
+    if (!Number.isInteger(qty) || qty < 1)
+      throw new ApiError(400, `Invalid quantity for menuItem ${it.menuItem}`);
     const price = priceMap[String(it.menuItem)];
-    totalAmount += price * qty;
-  }
+    if (typeof price === "undefined")
+      throw new ApiError(400, `Menu item not found: ${it.menuItem}`);
+    const subtotal = price * qty;
+    totalAmount += subtotal;
+    return {
+      menuItem: it.menuItem,
+      quantity: qty,
+      name: menuMap.get(String(it.menuItem))?.name || "Menu item",
+      price,
+      subtotal,
+    };
+  });
+
+  const orderItems = lineItems.map((item) => ({
+    menuItem: item.menuItem,
+    quantity: item.quantity,
+  }));
+
+  const pointsEarned = Math.max(0, Math.floor(totalAmount / POINTS_PER_AMOUNT));
 
   const newOrder = await Order.create({
     user: userId,
-    items,
+    items: orderItems,
     totalAmount,
     orderStatus: "Pending",
+    meta: { pointsEarned, pointsCredited: false },
   });
+  await newOrder.populate("items.menuItem", "name price");
 
-  // Award loyalty points (simple scheme: 1 point per X currency)
+  const currentPoints = userDoc.points || 0;
+
+  const listFormatter = (value) => `₹${Number(value).toFixed(0)}`;
+  const itemsListText = lineItems
+    .map(
+      (item) =>
+        `- ${item.quantity} × ${item.name} @ ${listFormatter(item.price)} = ${listFormatter(item.subtotal)}`,
+    )
+    .join("\n");
+  const itemsListHtml = lineItems
+    .map(
+      (item) =>
+        `<li>${item.quantity} × ${item.name} @ ${listFormatter(item.price)} = <strong>${listFormatter(item.subtotal)}</strong></li>`,
+    )
+    .join("");
+
+  const subject = `Order Confirmation #${newOrder._id}`;
+  const emailPayload = {
+    subject,
+    text: `Thank you for your order!\n\nItems:\n${itemsListText}\n\nTotal: ${listFormatter(
+      totalAmount,
+    )}\nPoints on completion: ${pointsEarned}\n\nWe will notify you when the status changes.`,
+    html: `
+      <h2>Order confirmed</h2>
+      <p>Thanks for dining with us. Here are your order details:</p>
+      <ul>${itemsListHtml}</ul>
+      <p><strong>Total:</strong> ${listFormatter(totalAmount)}</p>
+      <p><strong>Points after completion:</strong> ${pointsEarned}</p>
+      <p>We will notify you once your order status changes.</p>
+    `,
+  };
+
   try {
-    const POINTS_PER_AMOUNT = Number(process.env.POINTS_PER_AMOUNT) || 100; // default: 1 point per 100 units
-    const pointsEarned = Math.floor(totalAmount / POINTS_PER_AMOUNT);
-    if (pointsEarned > 0) {
-      const user = await User.findById(userId);
-      if (user) {
-        user.points = (user.points || 0) + pointsEarned;
-        await user.save();
-      }
+    const customerEmail = userDoc.email || req.user?.email;
+    if (customerEmail) {
+      await sendEmail({ to: customerEmail, ...emailPayload });
     }
   } catch (err) {
-    logger.error("Failed to award points:", err);
+    logger.error("Failed to send order confirmation email to customer:", err);
+  }
+
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      await sendEmail({
+        to: adminEmail,
+        subject: `New order placed #${newOrder._id}`,
+        text: `Customer: ${userDoc.username || userDoc.email}\nTotal: ${listFormatter(totalAmount)}\nPoints awarded: ${pointsEarned}\n\nItems:\n${itemsListText}`,
+        html: `
+          <p><strong>Customer:</strong> ${userDoc.username || userDoc.email}</p>
+          <p><strong>Total:</strong> ${listFormatter(totalAmount)}</p>
+          <p><strong>Points awarded:</strong> ${pointsEarned}</p>
+          <ul>${itemsListHtml}</ul>
+        `,
+      });
+    }
+  } catch (err) {
+    logger.error("Failed to send order confirmation email to admin:", err);
   }
 
   await logAudit({
@@ -62,11 +140,17 @@ export const createOrder = asyncHandler(async (req, res) => {
     action: "order_created",
     resource: "order",
     resourceId: newOrder._id,
-    meta: { totalAmount },
+    meta: { totalAmount, pointsEarned },
     ip: req.ip,
   });
 
-  return res.status(201).json(new ApiResponse(201, newOrder, "Order placed successfully"));
+  return res.status(201).json(
+    new ApiResponse(
+      201,
+      { order: newOrder, loyalty: { pointsEarned, currentPoints } },
+      "Order placed successfully",
+    ),
+  );
 });
 
 /* ---------------------------------------------------
@@ -136,21 +220,99 @@ export const cancelOrder = asyncHandler(async (req, res) => {
   const order = await Order.findById(id).populate("user", "email username");
   if (!order) throw new ApiError(404, "Order not found");
 
-  if (order.user._id.toString() !== req.user._id.toString()) throw new ApiError(403, "You can only cancel your own orders");
+  if (order.user._id.toString() !== req.user._id.toString())
+    throw new ApiError(403, "You can only cancel your own orders");
+
+  await order.populate("items.menuItem", "name price");
+
+  const userDoc = await User.findById(order.user._id).select(
+    "email username points",
+  );
+  const pointsEarned = Number(order.meta?.pointsEarned || 0);
+  const redeemedPoints = Number(order.meta?.redeemedPoints || 0);
+  const pointsCredited = Boolean(order.meta?.pointsCredited);
+
+  if (userDoc) {
+    if (pointsCredited && pointsEarned > 0) {
+      userDoc.points = Math.max(0, (userDoc.points || 0) - pointsEarned);
+    }
+    if (redeemedPoints > 0) {
+      userDoc.points = (userDoc.points || 0) + redeemedPoints;
+    }
+    await userDoc.save();
+  }
 
   order.orderStatus = "Cancelled";
   await order.save();
+
+  const listFormatter = (value) => `₹${Number(value).toFixed(0)}`;
+  const itemsListText = order.items
+    .map(
+      (item) =>
+        `- ${item.quantity} × ${item.menuItem?.name || "Menu item"} @ ${listFormatter(item.menuItem?.price || 0)}`,
+    )
+    .join("\n");
+  const itemsListHtml = order.items
+    .map(
+      (item) =>
+        `<li>${item.quantity} × ${item.menuItem?.name || "Menu item"} @ ${listFormatter(item.menuItem?.price || 0)}</li>`,
+    )
+    .join("");
+
+  try {
+    const customerEmail = userDoc?.email || req.user?.email;
+    if (customerEmail) {
+      await sendEmail({
+        to: customerEmail,
+        subject: `Order Cancelled #${order._id}`,
+        text: `Your order has been cancelled.\n\nItems:\n${itemsListText}\n\nAny redeemed points (${redeemedPoints}) were refunded to your balance.`,
+        html: `
+          <h3>Your order has been cancelled</h3>
+          <ul>${itemsListHtml}</ul>
+          <p><strong>Redeemed points refunded:</strong> ${redeemedPoints}</p>
+          <p><strong>Points removed:</strong> ${pointsEarned}</p>
+        `,
+      });
+    }
+  } catch (err) {
+    logger.error("Failed to send customer cancellation email:", err);
+  }
+
+  try {
+    const adminEmail = process.env.ADMIN_EMAIL;
+    if (adminEmail) {
+      await sendEmail({
+        to: adminEmail,
+        subject: `Order cancelled #${order._id}`,
+        text: `Customer: ${userDoc?.username || userDoc?.email}\nPoints removed: ${pointsEarned}\nRedeemed refunded: ${redeemedPoints}\n\nItems:\n${itemsListText}`,
+        html: `
+          <p><strong>Customer:</strong> ${userDoc?.username || userDoc?.email}</p>
+          <p><strong>Points removed:</strong> ${pointsEarned}</p>
+          <p><strong>Redeemed refunded:</strong> ${redeemedPoints}</p>
+          <ul>${itemsListHtml}</ul>
+        `,
+      });
+    }
+  } catch (err) {
+    logger.error("Failed to send admin cancellation email:", err);
+  }
 
   await logAudit({
     user: req.user?._id,
     action: "order_cancelled",
     resource: "order",
     resourceId: order._id,
-    meta: {},
+    meta: { pointsRemoved: pointsEarned, redeemedRefunded: redeemedPoints },
     ip: req.ip,
   });
 
-  return res.status(200).json(new ApiResponse(200, order, "Order cancelled successfully"));
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      { order, loyalty: { currentPoints: userDoc?.points || req.user?.points || 0 } },
+      "Order cancelled successfully",
+    ),
+  );
 });
 
 /* ---------------------------------------------------
@@ -189,7 +351,29 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   const order = await Order.findById(id).populate("user", "email username");
   if (!order) throw new ApiError(404, "Order not found");
 
+  const shouldCreditPoints =
+    orderStatus === "Delivered" &&
+    !order.meta?.pointsCredited &&
+    Number(order.meta?.pointsEarned || 0) > 0;
+
   order.orderStatus = orderStatus;
+
+  if (shouldCreditPoints) {
+    try {
+      const userDoc = await User.findById(order.user._id);
+      if (userDoc) {
+        userDoc.points = (userDoc.points || 0) + Number(order.meta.pointsEarned);
+        await userDoc.save();
+        order.meta = Object.assign({}, order.meta || {}, {
+          pointsCredited: true,
+          pointsCreditedAt: new Date(),
+        });
+      }
+    } catch (err) {
+      logger.error("Failed to credit loyalty points on delivery:", err);
+    }
+  }
+
   await order.save();
 
   await logAudit({
@@ -233,34 +417,41 @@ export const deleteOrder = asyncHandler(async (req, res) => {
 --------------------------------------------------- */
 export const redeemPoints = asyncHandler(async (req, res) => {
   const { id } = req.params; // order id
-  const { pointsToRedeem } = req.body;
+  const requestedPoints = Number(
+    req.body.points ?? req.body.pointsToRedeem ?? 0,
+  );
   const userId = req.user?._id;
 
-  if (!pointsToRedeem || !Number.isInteger(Number(pointsToRedeem)) || Number(pointsToRedeem) <= 0)
-    throw new ApiError(400, "pointsToRedeem is required and must be a positive integer");
+  if (!Number.isInteger(requestedPoints) || requestedPoints <= 0)
+    throw new ApiError(400, "points must be a positive integer");
 
   const order = await Order.findById(id).populate("user", "email username");
   if (!order) throw new ApiError(404, "Order not found");
-  if (order.user._id.toString() !== userId.toString()) throw new ApiError(403, "Not authorized to redeem points on this order");
+  if (order.user._id.toString() !== userId.toString())
+    throw new ApiError(403, "Not authorized to redeem points on this order");
+  if (order.orderStatus === "Cancelled")
+    throw new ApiError(400, "Cannot redeem points on a cancelled order");
 
   const user = await User.findById(userId);
   if (!user) throw new ApiError(404, "User not found");
-  const pts = Number(pointsToRedeem);
-  if ((user.points || 0) < pts) throw new ApiError(400, "Insufficient points");
+  if ((user.points || 0) < requestedPoints)
+    throw new ApiError(400, "Insufficient points");
 
-  // prevent double redemption
-  const alreadyRedeemed = order.meta && order.meta.redeemedPoints;
-  if (alreadyRedeemed) throw new ApiError(400, "Points already redeemed for this order");
+  const alreadyRedeemed = Number(order.meta?.redeemedPoints || 0);
+  if (alreadyRedeemed > 0)
+    throw new ApiError(400, "Points already redeemed for this order");
 
-  const POINT_VALUE = Number(process.env.POINT_VALUE) || 1; // currency value per point
-  const discount = pts * POINT_VALUE;
+  const discount = requestedPoints * POINT_VALUE;
   const newTotal = Math.max(0, order.totalAmount - discount);
 
   order.totalAmount = newTotal;
-  order.meta = Object.assign({}, order.meta || {}, { redeemedPoints: pts, discountApplied: discount });
+  order.meta = Object.assign({}, order.meta || {}, {
+    redeemedPoints: requestedPoints,
+    discountApplied: discount,
+  });
   await order.save();
 
-  user.points = (user.points || 0) - pts;
+  user.points = (user.points || 0) - requestedPoints;
   await user.save();
 
   await logAudit({
@@ -268,9 +459,20 @@ export const redeemPoints = asyncHandler(async (req, res) => {
     action: "redeem_points",
     resource: "order",
     resourceId: order._id,
-    meta: { pointsRedeemed: pts, discount },
+    meta: { pointsRedeemed: requestedPoints, discount },
     ip: req.ip,
   });
 
-  return res.status(200).json(new ApiResponse(200, { order, user }, "Points redeemed and applied to order"));
+  await order.populate("items.menuItem", "name price");
+
+  return res.status(200).json(
+    new ApiResponse(
+      200,
+      {
+        order,
+        loyalty: { currentPoints: user.points, redeemedPoints: requestedPoints },
+      },
+      "Points redeemed and applied to order",
+    ),
+  );
 });

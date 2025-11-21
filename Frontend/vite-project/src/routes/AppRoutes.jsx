@@ -6,6 +6,7 @@ import MenuPage from '../pages/MenuPage.jsx'
 import ReservationsPage from '../pages/ReservationsPage.jsx'
 import ContactPage from '../pages/ContactPage.jsx'
 import AdminPage from '../pages/AdminPage.jsx'
+import CartPage from '../pages/CartPage.jsx'
 import AuthPage from '../pages/AuthPage.jsx'
 
 const NotFound = () => (
@@ -21,6 +22,7 @@ const AppRoutes = () => {
       <Route element={<MainLayout />}>
         <Route path="/" element={<HomePage />} />
         <Route path="/menu" element={<MenuPage />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/reservations" element={<ReservationsPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPage />} />

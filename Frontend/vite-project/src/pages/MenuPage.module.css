@@ -5,10 +5,11 @@
 }
 
 .hero {
-  background: rgba(10, 8, 6, 0.65);
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 24px;
-  border: 1px solid var(--color-border);
+  border: 1px solid rgba(42, 27, 17, 0.1);
   padding: clamp(1.5rem, 4vw, 2.5rem);
+  box-shadow: 0 25px 60px rgba(42, 27, 17, 0.08);
 }
 
 .actions {
@@ -19,9 +20,9 @@
 }
 
 .filter {
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(42, 27, 17, 0.2);
   background: transparent;
-  color: rgba(245, 240, 234, 0.85);
+  color: rgba(42, 27, 17, 0.75);
   text-transform: uppercase;
   letter-spacing: 0.1em;
   padding: 0.45rem 1.3rem;
@@ -36,7 +37,7 @@
 
 .filter.active {
   background: var(--color-accent);
-  color: #1a0e07;
+  color: #fff;
   border-color: var(--color-accent);
 }
 
@@ -46,7 +47,7 @@
 
 .categorySection {
   padding: 1.5rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(42, 27, 17, 0.08);
 }
 
 .categoryHeader {
@@ -66,7 +67,7 @@
 .categoryDivider {
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba(42, 27, 17, 0.08);
 }
 
 .menuGrid {
@@ -76,14 +77,23 @@
 }
 
 .menuCard {
-  background: rgba(19, 16, 13, 0.95);
+  background: rgba(255, 255, 255, 0.96);
   border-radius: 20px;
   padding: 1.3rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(42, 27, 17, 0.08);
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
   justify-content: space-between;
+  box-shadow: 0 24px 40px rgba(42, 27, 17, 0.08);
+}
+
+.menuCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .menuCardHeader {
@@ -110,5 +120,171 @@
 
 .unavailable {
   color: var(--color-error);
+}
+
+.quantityControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 27, 17, 0.12);
+  background: rgba(42, 27, 17, 0.04);
+}
+
+.quantityButton {
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  font-size: 1.1rem;
+  line-height: 1;
+  width: 1.6rem;
+  height: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+}
+
+.quantityButton:hover:not(:disabled) {
+  background: rgba(42, 27, 17, 0.08);
+}
+
+.quantityButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantityValue {
+  min-width: 1.5rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.cartSubtotal {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.9rem;
+}
+
+.cartSubtotal strong {
+  font-size: 1.1rem;
+  color: var(--color-accent);
+}
+
+.cartSummaryBar {
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-radius: 18px;
+  border: 1px solid rgba(42, 27, 17, 0.08);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 20px 50px rgba(42, 27, 17, 0.08);
+}
+
+.loyaltySection {
+  margin-top: 3rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border-radius: 28px;
+  border: 1px solid rgba(42, 27, 17, 0.12);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 35px 60px rgba(42, 27, 17, 0.08);
+}
+
+.loyaltyGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.loyaltyCard {
+  padding: 1rem 1.2rem;
+  border-radius: 18px;
+  border: 1px solid rgba(42, 27, 17, 0.08);
+  background: var(--color-surface);
+}
+
+.loyaltyLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  color: rgba(42, 27, 17, 0.6);
+  margin-bottom: 0.3rem;
+}
+
+.loyaltyValue {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0;
+}
+
+.ordersTableWrapper {
+  margin-top: 1rem;
+  overflow-x: auto;
+  border: 1px solid rgba(42, 27, 17, 0.08);
+  border-radius: 20px;
+}
+
+.ordersTable {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.ordersTable th,
+.ordersTable td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(42, 27, 17, 0.06);
+}
+
+.ordersTable th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(42, 27, 17, 0.7);
+}
+
+.ordersTable tbody tr:nth-child(even) td {
+  background: rgba(42, 27, 17, 0.03);
+}
+
+.redeemControls {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.redeemInput {
+  width: 100px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 27, 17, 0.2);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+.feedbackError {
+  color: var(--color-error);
+  margin-bottom: 1rem;
+}
+
+.feedbackSuccess {
+  color: var(--color-success);
+  margin-bottom: 1rem;
+}
+
+.muted {
+  color: rgba(42, 27, 17, 0.6);
+  margin: 0.5rem 0;
 }
 
