@@ -48,8 +48,23 @@
 }
 
 .heroImage img {
+  width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+/* Make hero image larger and not look like a banner */
+.heroImage {
+  aspect-ratio: 4 / 3;
+  min-height: 320px;
+}
+
+@media (max-width: 900px) {
+  .heroImage {
+    aspect-ratio: 16 / 9;
+    min-height: 220px;
+    width: 100%;
+  }
 }
 
 .featured {

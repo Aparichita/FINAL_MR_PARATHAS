@@ -6,9 +6,16 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  grid-template-columns: 1fr;
   gap: 1.5rem;
   align-items: start;
+}
+
+@media (min-width: 1100px) {
+  /* Keep a simple two-row layout on wide screens but keep items full-width stacked */
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .headerBar {

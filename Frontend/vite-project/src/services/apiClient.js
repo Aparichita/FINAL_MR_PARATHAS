@@ -51,11 +51,30 @@ export const setRefreshToken = (token) => {
 }
 
 const handleError = (error) => {
+  // If unauthorized, clear client-side session so UI updates cleanly
+  const status = error?.response?.status
+  if (status === 401) {
+    if (typeof window !== 'undefined') {
+      try {
+        // remove tokens and stored user information
+        window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY)
+        window.localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY)
+        window.localStorage.removeItem('restaurant_user')
+      } catch (e) {
+        // ignore
+      }
+    }
+    // make sure auth header is cleared
+    delete api.defaults.headers.common.Authorization
+    return Promise.reject(new Error('Session expired or unauthorized. Please sign in again.'))
+  }
+
   // Handle validation errors from backend
   if (error?.response?.data?.errors && Array.isArray(error.response.data.errors) && error.response.data.errors.length > 0) {
     const validationMessages = error.response.data.errors.map((err) => err.message || `${err.field}: ${err.message}`).join(', ')
     return Promise.reject(new Error(validationMessages))
   }
+
   // Handle regular API errors
   const apiError = error?.response?.data?.message ?? error.message ?? 'Something went wrong'
   return Promise.reject(new Error(apiError))

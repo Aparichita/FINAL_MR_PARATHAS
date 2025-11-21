@@ -21,11 +21,17 @@ const Header = () => {
     const base = [
       { label: 'Home', path: '/' },
       { label: 'Menu', path: '/menu' },
-      { label: 'Contact', path: '/contact' },
     ]
 
-    // Cart visible only when user is logged in
-    if (user) {
+    // Contact is shown to non-admin users (customers)
+    if (!user || user?.role !== 'admin') {
+      base.push({ label: 'Contact', path: '/contact' })
+    }
+
+    // Analytics temporarily hidden — re-enable later if needed
+
+    // Cart visible only for non-admin logged-in customers
+    if (user && user?.role !== 'admin') {
       base.push({ label: 'Cart', path: '/cart' })
     }
 

@@ -72,7 +72,6 @@ const AdminPage = () => {
             <MenuManager />
             <ReservationsList />
           </div>
-
           <ContactInbox />
         </>
       )}

@@ -80,8 +80,8 @@ const MenuPage = () => {
       <section className={styles.hero}>
         <SectionHeading
           eyebrow="Chef-driven menu"
-          title="From charcoal tandoors to patiala cocktails"
-          description="Thoughtfully curated courses inspired by vibrant Punjabi dhabas and modern Indian bistros."
+          title="From charcoal tandoors to homely parathas"
+          description="Thoughtfully curated courses inspired by vibrant Punjabi dhabas and family recipes." 
         />
         <div className={styles.actions}>
           {categories.map((category) => (

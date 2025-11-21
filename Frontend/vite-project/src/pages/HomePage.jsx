@@ -6,11 +6,10 @@ import SectionHeading from '../components/common/SectionHeading.jsx'
 import { useMenu } from '../hooks/useMenu.js'
 import styles from './HomePage.module.css'
 
-const heroImage =
-  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1280&q=80'
+// Use a local image placed in `public/images/home-hero.jpg` (add the image file there)
+const heroImage = '/images/home-hero.jpg'
 
-const ambienceImage =
-  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80'
+const ambienceImage = '/images/home-ambience.jpg'
 
 const HomePage = () => {
   const { data: menuItems = [], isLoading, isError } = useMenu()
@@ -22,24 +21,24 @@ const HomePage = () => {
 
   return (
     <div className={styles.page}>
-      <section className={styles.hero}>
+      <section className={`${styles.hero} warm-gradient fade-soft`}>
         <div className={styles.heroContent}>
           <p className={styles.eyebrow}>Modern North Indian Kitchen</p>
-          <h1>Slow-fire parathas, smoked curries & craft cocktails.</h1>
+          <h1>Slow-fire parathas, smoked curries & family favourites.</h1>
           <p className={styles.lede}>
-            A contemporary dining room inspired by the bustling streets of Amritsar – serving seasonal menus,
-            reinterpretations of heirloom recipes and a thoughtful cocktail program.
+            A warm, family-friendly dining room inspired by home kitchens – serving seasonal menus,
+            reinterpretations of heirloom recipes and dishes made to share.
           </p>
           <div className={styles.heroActions}>
-            <Button to="/reservations" size="lg" icon={<FaArrowRight />}>
+            <Button to="/reservations" variant="ghost">
               Reserve a table
             </Button>
-            <Button to="/menu" variant='ghost'>
+            <Button to="/menu" variant="ghost">
               Explore the menu
             </Button>
           </div>
         </div>
-        <div className={styles.heroImage} role="presentation" aria-hidden="true">
+        <div className={`${styles.heroImage} food-card`} role="presentation" aria-hidden="true">
           <img src={heroImage} alt="Signature parathas on a rustic platter" loading="lazy" />
         </div>
       </section>
@@ -74,12 +73,12 @@ const HomePage = () => {
           <SectionHeading
             eyebrow="Our story"
             title="Born in a Punjabi kitchen, refined for today."
-            description="From tandoor-roasted kesar parathas to smoked dal makhani simmered overnight, every recipe is a tribute to families who celebrate around the table."
+            description="Thoughtfully curated courses inspired by vibrant Punjabi dhabas and modern Indian bistros."
           />
           <ul className={styles.highlights}>
             <li>Seasonal tasting menu that changes every eight weeks</li>
             <li>Locally sourced grains milled fresh every morning</li>
-            <li>Sommelier-curated wine and cocktail pairings</li>
+            <li>Thoughtful beverage pairings and homely accompaniments</li>
           </ul>
         </div>
         <div className={styles.aboutImage}>
