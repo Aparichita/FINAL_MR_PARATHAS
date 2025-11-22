@@ -70,7 +70,6 @@ export default function AnalyticsPage() {
 
         if (!mounted) return
 
-        // Safe helper for arrays
         const safeArray = (res) =>
           res.status === 'fulfilled' && Array.isArray(res.value) ? res.value : []
 
@@ -83,12 +82,10 @@ export default function AnalyticsPage() {
 
         // --- ML ---
         setPredTomorrow(results[5].status === 'fulfilled' ? results[5].value : null)
-
         const trend = results[6].status === 'fulfilled' ? results[6].value : []
         if (Array.isArray(trend)) setSalesTrend(trend)
         else if (trend?.series) setSalesTrend(trend.series)
         else setSalesTrend([])
-
         setPredPeakHour(results[7].status === 'fulfilled' ? results[7].value : null)
         setPredItemDemand(results[8].status === 'fulfilled' ? results[8].value : null)
       } catch (err) {
@@ -105,10 +102,10 @@ export default function AnalyticsPage() {
     }
   }, [])
 
-  // --- Orders ---
   const handleDownloadOrders = async () => {
     try {
-      const res = await fetch('https://restaurant-analytics-backend-1o58.onrender.com/download/orders')
+      const BASE = import.meta.env.VITE_ML_API_URL || 'https://restaurant-analytics-backend-1o58.onrender.com'
+      const res = await fetch(`${BASE}/download/orders`)
       if (!res.ok) throw new Error('Failed to fetch orders')
       const blob = await res.blob()
       const url = window.URL.createObjectURL(blob)
@@ -125,7 +122,8 @@ export default function AnalyticsPage() {
   const handleAddOrder = async () => {
     try {
       const body = { item: 'Paratha', quantity: 2, price: 50 }
-      const res = await fetch('https://restaurant-analytics-backend-1o58.onrender.com/orders/add-order', {
+      const BASE = import.meta.env.VITE_ML_API_URL || 'https://restaurant-analytics-backend-1o58.onrender.com'
+      const res = await fetch(`${BASE}/orders/add-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
@@ -179,8 +177,8 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={revenuePerDay}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
+                <XAxis dataKey="date" label={{ value: 'Date', position: 'insideBottom', offset: -5 }} />
+                <YAxis label={{ value: 'Revenue', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Line type="monotone" dataKey="total_amount" stroke="#E67E22" strokeWidth={2} />
               </LineChart>
@@ -194,8 +192,8 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={salesTrend}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
+                <XAxis dataKey="date" label={{ value: 'Date', position: 'insideBottom', offset: -5 }} />
+                <YAxis label={{ value: 'Sales', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Line type="monotone" dataKey="value" stroke="#6B8F71" strokeWidth={2} />
               </LineChart>
@@ -210,10 +208,10 @@ export default function AnalyticsPage() {
           <h3>Top Selling Items</h3>
           {topItems.length ? (
             <ResponsiveContainer width="100%" height={220}>
-              <BarChart data={topItems} layout="vertical">
+              <BarChart data={topItems}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" />
-                <YAxis dataKey="item" type="category" width={140} />
+                <XAxis dataKey="item" label={{ value: 'Item', position: 'insideBottom', offset: -5 }} />
+                <YAxis label={{ value: 'Quantity Sold', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
                 <Bar dataKey="quantity" fill="#E67E22" />
               </BarChart>
@@ -224,14 +222,15 @@ export default function AnalyticsPage() {
         <div style={CARD}>
           <h3>Category Sales</h3>
           {categorySales.length ? (
-            <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
-              {categorySales.map((c, i) => (
-                <li key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px dashed rgba(47,79,79,0.06)' }}>
-                  <span>{c.category}</span>
-                  <strong>{c.quantity}</strong>
-                </li>
-              ))}
-            </ul>
+            <ResponsiveContainer width="100%" height={220}>
+              <BarChart data={categorySales}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="category" label={{ value: 'Category', position: 'insideBottom', offset: -5 }} />
+                <YAxis label={{ value: 'Quantity Sold', angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Bar dataKey="quantity" fill="#7A4F2A" />
+              </BarChart>
+            </ResponsiveContainer>
           ) : <p>No category sales available</p>}
         </div>
       </div>
@@ -244,10 +243,16 @@ export default function AnalyticsPage() {
             <ResponsiveContainer width="100%" height={180}>
               <BarChart data={peakHours}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="hour" />
-                <YAxis />
+                <XAxis dataKey="hour" label={{ value: 'Hour', position: 'insideBottom', offset: -5 }} />
+                <YAxis label={{ value: 'Orders', angle: -90, position: 'insideLeft' }} />
                 <Tooltip />
-                <Bar dataKey="orders" fill="#A67C52" />
+                <Bar
+                  dataKey="orders"
+                  fill="#A67C52"
+                  label={{ position: 'top' }}
+                  // Optional: highlight peak hour
+                  >
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           ) : <p>No peak hours data available</p>}
@@ -258,7 +263,15 @@ export default function AnalyticsPage() {
           {weekendVsWeekday.length ? (
             <ResponsiveContainer width="100%" height={180}>
               <PieChart>
-                <Pie data={weekendVsWeekday} dataKey="orders" nameKey="type" cx="50%" cy="50%" outerRadius={60} label>
+                <Pie
+                  data={weekendVsWeekday}
+                  dataKey="orders"
+                  nameKey="type"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  label
+                >
                   {weekendVsWeekday.map((entry, index) => (
                     <Cell key={index} fill={COLORS[index % COLORS.length]} />
                   ))}

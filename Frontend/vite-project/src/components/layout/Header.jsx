@@ -38,6 +38,8 @@ const Header = () => {
     // Admin link visible only for admin role
     if (user?.role === 'admin') {
       base.push({ label: 'Admin', path: '/admin' })
+      // Analytics for admins
+      base.push({ label: 'Analytics', path: '/analytics' })
     }
 
     return base

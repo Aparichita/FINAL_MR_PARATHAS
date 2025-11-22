@@ -1,8 +1,4 @@
-const BASE_URL =
-  (typeof import.meta !== 'undefined' &&
-    import.meta.env &&
-    import.meta.env.VITE_ML_API_URL) ||
-  'https://restaurant-analytics-backend-1o58.onrender.com'
+const BASE_URL = import.meta.env.VITE_ML_API_URL || 'https://restaurant-analytics-backend-1o58.onrender.com'
 
 // Safe fetch helper for arrays
 async function fetchArray(url) {

@@ -8,8 +8,7 @@ import ContactPage from '../pages/ContactPage.jsx'
 import AdminPage from '../pages/AdminPage.jsx'
 import CartPage from '../pages/CartPage.jsx'
 import AuthPage from '../pages/AuthPage.jsx'
-// Analytics page temporarily disabled — re-enable import when ML is ready
-// import AnalyticsPage from '../pages/AnalyticsPage.jsx'
+import AnalyticsPage from '../pages/AnalyticsPage.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import { Navigate } from 'react-router-dom'
 
@@ -28,6 +27,7 @@ const AppRoutes = () => {
     if (!user || user.role !== 'admin') return <Navigate to="/" replace />
     return children
   }
+
   return (
     <Routes>
       <Route element={<MainLayout />}>
@@ -35,8 +35,7 @@ const AppRoutes = () => {
         <Route path="/menu" element={<MenuPage />} />
         <Route path="/cart" element={<CartPage />} />
         <Route path="/reservations" element={<ReservationsPage />} />
-        {/* Analytics route temporarily disabled while ML is offline */}
-        {/* <Route path="/analytics" element={<AdminGuard><AnalyticsPage /></AdminGuard>} /> */}
+        <Route path="/analytics" element={<AdminGuard><AnalyticsPage /></AdminGuard>} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="/auth" element={<AuthPage />} />
@@ -47,4 +46,3 @@ const AppRoutes = () => {
 }
 
 export default AppRoutes
-
