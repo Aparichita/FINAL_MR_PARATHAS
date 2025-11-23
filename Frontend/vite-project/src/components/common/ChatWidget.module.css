@@ -1,0 +1,91 @@
+.container {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 1200;
+  font-family: inherit;
+}
+
+.launcherWrap {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.launcher {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--color-cta, #e67e22), #d35400);
+  color: white;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.22);
+  cursor: pointer;
+  transform: translateZ(0);
+}
+
+.badge {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  background: #fff;
+  color: var(--color-cta, #d35400);
+  padding: 6px 10px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.14);
+}
+
+.panel {
+  width: 320px;
+  max-width: calc(100vw - 40px);
+  height: 420px;
+  background: var(--color-surface, #fff);
+  border-radius: 12px;
+  margin-top: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 12px;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  background: linear-gradient(90deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+}
+
+.title { display:flex; gap:8px; align-items:center; font-weight:700 }
+.headerActions { display:flex; gap:8px; align-items:center }
+.closeBtn, .phoneBtn { background:transparent; border:none; cursor:pointer; color:var(--color-text, #2f4f4f) }
+
+.tabs { display:flex; gap:6px; padding:8px; background:transparent }
+.tab { flex:1; padding:6px 8px; border-radius:8px; background:transparent; border:none; cursor:pointer }
+.activeTab { background: rgba(0,0,0,0.04); font-weight:600 }
+
+.body { display:flex; flex-direction:column; padding:8px; gap:8px; flex:1 }
+.messages { flex:1; overflow:auto; padding:8px 4px; display:flex; flex-direction:column; gap:8px }
+.message { display:flex }
+.message.user { justify-content:flex-end }
+.message.bot { justify-content:flex-start }
+.bubble { max-width:78%; padding:10px 12px; border-radius:14px; background: #f4f4f4; color: #111 }
+.message.user .bubble { background: var(--color-cta, #e67e22); color: white }
+
+.inputRow { display:flex; gap:8px; padding:8px; border-top: 1px solid rgba(0,0,0,0.06) }
+.inputRow input { flex:1; padding:8px 10px; border-radius:8px; border:1px solid rgba(0,0,0,0.08) }
+.sendBtn { width:44px; border-radius:8px; background:var(--color-cta, #e67e22); color:white; border:none; display:flex; align-items:center; justify-content:center; cursor:pointer }
+
+.field { display:flex; flex-direction:column; gap:6px }
+.field input { padding:8px; border-radius:8px; border:1px solid rgba(0,0,0,0.08) }
+.actionsRow { display:flex; justify-content:flex-end; padding-top:6px }
+.bookBtn { background:var(--color-cta, #e67e22); color:white; border:none; padding:8px 12px; border-radius:8px; cursor:pointer }
+
+@media (max-width: 480px) {
+  .panel { width: 92vw; height: 60vh }
+}
