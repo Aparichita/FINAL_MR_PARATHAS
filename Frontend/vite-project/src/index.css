@@ -65,7 +65,6 @@
   transform: scale(1.05);
 }
 
-
 @keyframes softPulse {
   0% {
     transform: scale(1);
