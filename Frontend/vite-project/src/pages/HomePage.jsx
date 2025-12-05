@@ -30,9 +30,9 @@ const HomePage = () => {
             reinterpretations of heirloom recipes and dishes made to share.
           </p>
           <div className={styles.heroActions}>
-            <Button to="/reservations" variant="ghost">
+            {/* <Button to="/reservations" variant="ghost">
               Reserve a table
-            </Button>
+            </Button> */}
             <Button to="/menu" variant="ghost">
               Explore the menu
             </Button>

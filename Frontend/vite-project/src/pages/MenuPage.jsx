@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext.jsx'
 import { useTakeawayCart } from '../hooks/useTakeawayCart.js'
 import styles from './MenuPage.module.css'
 
-const categories = ['all', 'appetizers', 'mains', 'desserts', 'drinks', 'parathas']
+const categories = ['all', 'stuff paratha', 'premium paratha', 'today thali', 'special sabji', 'chinese starters', 'chinese soup', 'chinese rice', 'chinese noodles', 'chinese combo', 'hot and cold', 'extra']
 
 const MenuPage = () => {
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -62,8 +62,9 @@ const MenuPage = () => {
   }
 
   const filteredMenu = useMemo(() => {
-    if (selectedCategory === 'all') return menuItems
-    return menuItems.filter((item) => item.category?.toLowerCase() === selectedCategory)
+    const sel = (selectedCategory || 'all').toString().trim().toLowerCase()
+    if (sel === 'all') return menuItems
+    return menuItems.filter((item) => (item.category || '').toString().trim().toLowerCase() === sel)
   }, [menuItems, selectedCategory])
 
   const groupedMenu = useMemo(() => {
@@ -91,7 +92,7 @@ const MenuPage = () => {
               onClick={() => setSelectedCategory(category)}
               className={`${styles.filter} ${selectedCategory === category ? styles.active : ''}`}
             >
-              {category}
+              {category === 'all' ? 'ALL' : category.toUpperCase()}
             </button>
           ))}
           <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isFetching}>
@@ -119,13 +120,29 @@ const MenuPage = () => {
 
                 return (
                   <article key={item._id} className={styles.menuCard}>
-                    <div>
+                    {/* IMAGE SECTION - ADDED */}
+                    {item.imageUrl && (
+                      <div className={styles.menuCardImage}>
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.name}
+                          loading="lazy"
+                          onError={(e) => {
+                            // Fallback if image fails to load
+                            e.target.src = 'https://via.placeholder.com/400x300?text=No+Image'
+                          }}
+                        />
+                      </div>
+                    )}
+                    
+                    <div className={styles.menuCardContent}>
                       <div className={styles.menuCardHeader}>
                         <h3>{item.name}</h3>
                         <p className={styles.price}>₹{Number(item.price).toFixed(0)}</p>
                       </div>
-                      <p>{item.description || 'Chef special crafted for the season.'}</p>
+                      <p className={styles.description}>{item.description || 'Chef special crafted for the season.'}</p>
                     </div>
+                    
                     <div className={styles.menuCardFooter}>
                       <p className={`${styles.badge} ${item.isAvailable ? styles.available : styles.unavailable}`}>
                         {item.isAvailable ? 'Available' : 'Temporarily unavailable'}
@@ -174,4 +191,3 @@ const MenuPage = () => {
 }
 
 export default MenuPage
-

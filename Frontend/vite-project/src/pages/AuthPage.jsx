@@ -31,7 +31,7 @@ const AuthPage = () => {
       const account = await login(loginValues)
       setStatusMessage(`Welcome back, ${account?.username || account?.email}!`)
       setLoginValues(initialLoginState)
-      navigate('/reservations')
+      navigate('/')
     } catch (error) {
       setErrorMessage(error.message)
     }
@@ -45,7 +45,7 @@ const AuthPage = () => {
       const account = await register(signupValues)
       setStatusMessage(`Account created for ${account?.username || account?.email}.`)
       setSignupValues(initialSignupState)
-      navigate('/reservations')
+      navigate('/')
     } catch (error) {
       setErrorMessage(error.message)
     }

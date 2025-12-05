@@ -7,7 +7,7 @@ import { useMenu, MENU_QUERY_KEY } from '../../hooks/useMenu.js'
 import { apiClient } from '../../services/apiClient.js'
 import styles from './Admin.module.css'
 
-const categories = ['appetizers', 'mains', 'desserts', 'drinks', 'parathas']
+const categories = [ 'stuff paratha', 'premium paratha', 'today thali', 'special sabji', 'chinese starters', 'chinese soup', 'chinese rice', 'chinese noodles', 'chinese combo', 'hot and cold', 'extra']
 
 const MenuManager = () => {
   const queryClient = useQueryClient()
@@ -17,6 +17,7 @@ const MenuManager = () => {
     description: '',
     category: 'mains',
     price: '',
+    imageUrl: '',
     isAvailable: true,
   })
 
@@ -28,6 +29,7 @@ const MenuManager = () => {
         description: '',
         category: 'mains',
         price: '',
+        imageUrl: '',
         isAvailable: true,
       })
       queryClient.invalidateQueries({ queryKey: MENU_QUERY_KEY })
@@ -59,6 +61,20 @@ const MenuManager = () => {
     }))
   }
 
+  const handleImageChange = (event) => {
+    const file = event.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setFormValues((prev) => ({
+          ...prev,
+          imageUrl: reader.result,
+        }))
+      }
+      reader.readAsDataURL(file)
+    }
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (!formValues.name || !formValues.price) return
@@ -68,6 +84,7 @@ const MenuManager = () => {
         description: formValues.description,
         category: formValues.category,
         price: Number(formValues.price),
+        imageUrl: formValues.imageUrl,
         isAvailable: formValues.isAvailable,
       })
     } catch {
@@ -117,6 +134,30 @@ const MenuManager = () => {
             onChange={handleChange}
             placeholder="Stone-ground spices, kasoori methi smoke and clarified butter drizzle."
           />
+        </div>
+
+        <div className={styles.fieldGroup}>
+          <label htmlFor="menu-image">Image</label>
+          <input
+            id="menu-image"
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+          />
+          {formValues.imageUrl && (
+            <div style={{ marginTop: '0.5rem' }}>
+              <img
+                src={formValues.imageUrl}
+                alt="Preview"
+                style={{
+                  maxWidth: '150px',
+                  maxHeight: '150px',
+                  borderRadius: '8px',
+                  objectFit: 'cover',
+                }}
+              />
+            </div>
+          )}
         </div>
 
         <div className={styles.fieldGroup}>

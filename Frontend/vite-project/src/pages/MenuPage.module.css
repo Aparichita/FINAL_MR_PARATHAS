@@ -16,7 +16,12 @@
   margin-top: 1.5rem;
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
+  gap: 0.5rem 0.75rem;
+  align-items: center;
+}
+
+.actions button {
+  white-space: nowrap;
 }
 
 .filter {
@@ -25,9 +30,10 @@
   color: rgba(42, 27, 17, 0.75);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  padding: 0.45rem 1.3rem;
+  padding: 0.45rem 1rem;
   border-radius: 999px;
   cursor: pointer;
+  font-size: 0.85rem;
 }
 
 .filter:hover {
@@ -72,23 +78,55 @@
 
 .menuGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
 .menuCard {
   background: rgba(255, 255, 255, 0.96);
   border-radius: 20px;
-  padding: 1.3rem;
+  overflow: hidden;
   border: 1px solid rgba(42, 27, 17, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
-  justify-content: space-between;
   box-shadow: 0 24px 40px rgba(42, 27, 17, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.menuCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 28px 50px rgba(42, 27, 17, 0.12);
+}
+
+/* NEW IMAGE STYLES */
+.menuCardImage {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: rgba(42, 27, 17, 0.04);
+}
+
+.menuCardImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.menuCard:hover .menuCardImage img {
+  transform: scale(1.05);
+}
+
+.menuCardContent {
+  padding: 1.3rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
 }
 
 .menuCardFooter {
+  padding: 0 1.3rem 1.3rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -103,9 +141,24 @@
   gap: 1rem;
 }
 
+.menuCardHeader h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.3;
+}
+
+.description {
+  color: rgba(42, 27, 17, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
 .price {
   color: var(--color-accent);
   font-weight: 600;
+  font-size: 1.1rem;
+  white-space: nowrap;
 }
 
 .badge {
@@ -189,102 +242,13 @@
   box-shadow: 0 20px 50px rgba(42, 27, 17, 0.08);
 }
 
-.loyaltySection {
-  margin-top: 3rem;
-  padding: clamp(1.5rem, 4vw, 2.5rem);
-  border-radius: 28px;
-  border: 1px solid rgba(42, 27, 17, 0.12);
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 35px 60px rgba(42, 27, 17, 0.08);
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .menuGrid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+  
+  .menuCardImage {
+    height: 180px;
+  }
 }
-
-.loyaltyGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.loyaltyCard {
-  padding: 1rem 1.2rem;
-  border-radius: 18px;
-  border: 1px solid rgba(42, 27, 17, 0.08);
-  background: var(--color-surface);
-}
-
-.loyaltyLabel {
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: 0.75rem;
-  color: rgba(42, 27, 17, 0.6);
-  margin-bottom: 0.3rem;
-}
-
-.loyaltyValue {
-  font-size: 1.6rem;
-  font-weight: 600;
-  color: var(--color-text);
-  margin: 0;
-}
-
-.ordersTableWrapper {
-  margin-top: 1rem;
-  overflow-x: auto;
-  border: 1px solid rgba(42, 27, 17, 0.08);
-  border-radius: 20px;
-}
-
-.ordersTable {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 640px;
-}
-
-.ordersTable th,
-.ordersTable td {
-  padding: 0.75rem 1rem;
-  text-align: left;
-  border-bottom: 1px solid rgba(42, 27, 17, 0.06);
-}
-
-.ordersTable th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(42, 27, 17, 0.7);
-}
-
-.ordersTable tbody tr:nth-child(even) td {
-  background: rgba(42, 27, 17, 0.03);
-}
-
-.redeemControls {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-}
-
-.redeemInput {
-  width: 100px;
-  border-radius: 999px;
-  border: 1px solid rgba(42, 27, 17, 0.2);
-  padding: 0.4rem 0.8rem;
-  font-size: 0.9rem;
-  font-family: inherit;
-}
-
-.feedbackError {
-  color: var(--color-error);
-  margin-bottom: 1rem;
-}
-
-.feedbackSuccess {
-  color: var(--color-success);
-  margin-bottom: 1rem;
-}
-
-.muted {
-  color: rgba(42, 27, 17, 0.6);
-  margin: 0.5rem 0;
-}
-

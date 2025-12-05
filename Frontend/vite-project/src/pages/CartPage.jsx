@@ -8,7 +8,7 @@ import { useUserOrders } from '../hooks/useUserOrders.js'
 import { useLoyaltySummary } from '../hooks/useLoyaltySummary.js'
 import { apiClient } from '../services/apiClient.js'
 import { useAuth } from '../context/AuthContext.jsx'
-import styles from './MenuPage.module.css'
+import styles from './CartPage.module.css'
 
 const CartPage = () => {
   const { user, refreshProfile } = useAuth()
@@ -60,11 +60,13 @@ const CartPage = () => {
   if (!user) {
     return (
       <div className={styles.page}>
-        <SectionHeading
-          eyebrow="Takeaway cart"
-          title="Sign in to place a takeaway order"
-          description="Please sign in to add items to your cart and confirm your takeaway order."
-        />
+        <div className={styles.heading}>
+          <SectionHeading
+            eyebrow="Takeaway cart"
+            title="Sign in to place a takeaway order"
+            description="Please sign in to add items to your cart and confirm your takeaway order."
+          />
+        </div>
         <Button to="/auth" variant="primary">
           Go to sign in
         </Button>
@@ -147,34 +149,36 @@ const CartPage = () => {
 
   return (
     <div className={styles.page}>
-      <SectionHeading
-        eyebrow="Takeaway cart"
-        title="Review your takeaway order"
-        description="Confirm your items for pickup. A confirmation email with your order ID will be sent to you and the restaurant."
-      />
+      <div className={styles.heading}>
+        <SectionHeading
+          eyebrow="Takeaway cart"
+          title="Review your takeaway order"
+          description="Confirm your items for pickup. A confirmation email with your order ID will be sent to you and the restaurant."
+        />
+      </div>
 
       {isLoading && <p>Loading cart…</p>}
       {isError && <p className={styles.error}>Unable to load cart. Please try again.</p>}
 
-      {!isLoading && !items.length && <p>Your cart is empty. Add items from the menu to get started.</p>}
+      {!isLoading && !items.length && <p className={styles.emptyState}>Your cart is empty. Add items from the menu to get started.</p>}
 
       {!isLoading && items.length > 0 && (
         <>
-          <div className={styles.menuGrid}>
+          <div className={styles.cartGrid}>
             {items.map((item) => {
               const price = Number(item.menuItem?.price || 0)
               const itemSubtotal = price * Number(item.quantity || 0)
               return (
-                <article key={item.menuItem?._id} className={styles.menuCard}>
-                  <div>
-                    <div className={styles.menuCardHeader}>
+                <article key={item.menuItem?._id} className={styles.cartItem}>
+                  <div className={styles.itemContent}>
+                    <div className={styles.itemHeader}>
                       <h3>{item.menuItem?.name}</h3>
-                      <p className={styles.price}>₹{price.toFixed(0)}</p>
+                      <p className={styles.itemPrice}>₹{price.toFixed(0)}</p>
                     </div>
-                    <p>{item.menuItem?.description || 'Selected for takeaway.'}</p>
+                    <p className={styles.itemDescription}>{item.menuItem?.description || 'Selected for takeaway.'}</p>
                   </div>
-                  <div className={styles.menuCardFooter}>
-                    <div className={styles.cartSubtotal}>
+                  <div className={styles.itemFooter}>
+                    <div className={styles.itemSubtotal}>
                       <span>Subtotal</span>
                       <strong>₹{itemSubtotal.toFixed(0)}</strong>
                     </div>
@@ -205,8 +209,8 @@ const CartPage = () => {
             })}
           </div>
 
-          <div className={styles.cartSummaryBar}>
-            <div className={styles.cartSummaryDetails}>
+          <div className={styles.summaryBar}>
+            <div className={styles.summaryDetails}>
               <p>Subtotal: <strong>₹{Number(subtotal).toFixed(0)}</strong></p>
               {loyaltyDiscount > 0 && (
                 <p>Loyalty Discount: <strong>-₹{loyaltyDiscount.toFixed(0)}</strong></p>
@@ -220,12 +224,14 @@ const CartPage = () => {
         </>
       )}
 
-      <section className={styles.loyaltySection}>
-        <SectionHeading
-          eyebrow="Loyalty"
-          title="Track and redeem your dine-in points"
-          description="Earn points on dine-in orders and redeem them for instant bill discounts."
-        />
+      <section className={styles.loyaltyPanel}>
+        <div className={styles.heading}>
+          <SectionHeading
+            eyebrow="Loyalty"
+            title="Track and redeem your dine-in points"
+            description="Earn points on dine-in orders and redeem them for instant bill discounts."
+          />
+        </div>
         {(isLoyaltyLoading || isOrdersLoading) && <p>Loading loyalty insights…</p>}
         {!isLoyaltyLoading && (
           <div className={styles.loyaltyGrid}>

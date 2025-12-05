@@ -83,8 +83,11 @@ const handleError = (error) => {
 api.interceptors.response.use((response) => response, handleError)
 
 export const apiClient = {
-  getMenu: async () => {
-    const response = await api.get('/menu')
+  // Fetch menu items. By default request a large `limit` so all seeded items
+  // are returned (backend uses pagination with `limit` defaulting to 20).
+  getMenu: async (params = {}) => {
+    const defaultParams = { limit: 1000 }
+    const response = await api.get('/menu', { params: { ...defaultParams, ...params } })
     return unwrapResponse(response) ?? []
   },
   getAvailableTables: async (bookingDate) => {

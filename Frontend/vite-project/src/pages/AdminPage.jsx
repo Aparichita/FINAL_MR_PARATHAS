@@ -70,7 +70,7 @@ const AdminPage = () => {
 
           <div className={styles.grid}>
             <MenuManager />
-            <ReservationsList />
+            {/* <ReservationsList /> */}
           </div>
           <ContactInbox />
         </>
